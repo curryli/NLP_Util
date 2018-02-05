@@ -1,0 +1,1 @@
+It gets even harder in the case of names for people or organizations. Any list of such names will probably have poor coverage. New organizations come into existence every day, so if we are trying to deal with contemporary£¨µ±´úµÄ£© newswire or blog entries, it is unlikely that we will be able to recognize many of the entities using gazetteer lookup.
