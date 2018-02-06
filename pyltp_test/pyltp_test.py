@@ -9,7 +9,7 @@ from pyltp import Parser
 from pyltp import SementicRoleLabeller
 
 
-LTP_DATA_DIR = 'D:\Libs_for_All\NLP_Libs\ltp_data_v3.4.0'  # ltp模型目录的路径
+LTP_DATA_DIR = 'D:\Libs_for_All\NLP_Libs\ltp_data_v3.3.1'  # ltp模型目录的路径
 cws_model_path = os.path.join(LTP_DATA_DIR, 'cws.model')  # 分词模型路径，模型名称为`cws.model`
 pos_model_path = os.path.join(LTP_DATA_DIR, 'pos.model')  # 词性标注模型路径，模型名称为`pos.model`
 ner_model_path = os.path.join(LTP_DATA_DIR, 'ner.model')  # 命名实体识别模型路径，模型名称为`ner.model`
@@ -27,7 +27,14 @@ def sentence_splitter(sentence='你好，你觉得这个例子从哪里来的？
 
 
 
-
+def role_label(words, postags, netags, arcs):
+    labeller = SementicRoleLabeller() # 初始化实例
+    labeller.load(srl_model_path)  # 加载模型
+    roles = labeller.label(words, postags, netags, arcs)  # 语义角色标注
+    for role in roles:
+        print role.index, "".join(
+            ["%s:(%d,%d)" % (arg.name, arg.range.start, arg.range.end) for arg in role.arguments])
+    labeller.release()  # 释放模型
 
 
 
@@ -123,19 +130,27 @@ if __name__ == '__main__':
 
 
     ###########################################语义角色标注###############################
-    labeller = SementicRoleLabeller()  # 初始化实例
-    labeller.load(srl_model_path)  # 加载模型
+    segmentor = Segmentor()
+    segmentor.load(cws_model_path)
+    words = segmentor.segment('元芳你怎么看')
 
-    words = ['元芳', '你', '怎么', '看']
-    postags = ['nh', 'r', 'r', 'v']
-    # arcs 使用依存句法分析的结果
-    roles = labeller.label(words, postags, arcs)  # 语义角色标注
+    postagger = Postagger()
+    postagger.load(pos_model_path)
+    postags = postagger.postag(words)
 
-    # 打印结果
-    for role in roles:
-        print role.index, "".join(
-            ["%s:(%d,%d)" % (arg.name, arg.range.start, arg.range.end) for arg in role.arguments])
-    labeller.release()  # 释放模型
+    recognizer = NamedEntityRecognizer()
+    recognizer.load(ner_model_path)
+    netags = recognizer.recognize(words, postags)
+    recognizer.release()
+
+    parser = Parser()  # 初始化实例
+    parser.load(par_model_path)  # 加载模型
+    arcs = parser.parse(words, postags)  # 句法分析
+
+
+    # j角色标注
+    roles = role_label(words, postags, netags, arcs)
+
 
     #3  A0:(0, 0)  A0:(1, 1)  ADV:(2, 2)
     #分析，这边只输出一行，表示只存在一组语义角色。 其谓词索引为3，即“看”。这个谓词有三个语义角色，范围分别是(0,0)即“元芳”，(1,1)即“你”，(2,2)即“怎么”，类型分别是A0、A0、ADV。
