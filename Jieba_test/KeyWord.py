@@ -38,6 +38,8 @@ for keyword in keywords:
 
 
 
+
+print "\n自定义简化版本的TextRank:"
 from simple_TextRank import my_TextRank
 simple_TR = my_TextRank()
 
