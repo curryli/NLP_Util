@@ -62,17 +62,21 @@ if not os.path.exists(out_dir):
 # Load data
 print("Loading data...")
 x_text, y = data_helpers.load_positive_negative_data_files(FLAGS.positive_data_file, FLAGS.negative_data_file)
+#max_document_length = max([len(x.split(" ")) for x in x_text])
+
+
+
 
 # Get embedding vector
 sentences, max_document_length = data_helpers.padding_sentences(x_text, '<PADDING>')
+
+#一句话最多多少单词
+print(max_document_length)
+
+
 x = np.array(word2vec_helpers.embedding_sentences(sentences, embedding_size = FLAGS.embedding_dim, file_to_save = os.path.join(out_dir, 'trained_word2vec.model')))
 print("x.shape = {}".format(x.shape))
 print("y.shape = {}".format(y.shape))
-
-# Save params
-training_params_file = os.path.join(out_dir, 'training_params.pickle')
-params = {'num_labels' : FLAGS.num_labels, 'max_document_length' : max_document_length}
-data_helpers.saveDict(params, training_params_file)
 
 # Shuffle data randomly
 np.random.seed(10)
@@ -86,6 +90,11 @@ dev_sample_index = -1 * int(FLAGS.dev_sample_percentage * float(len(y)))
 x_train, x_dev = x_shuffled[:dev_sample_index], x_shuffled[dev_sample_index:]
 y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
+
+print(x_train.shape)
+# x_train = tf.reshape(x_train, [-1, max_document_length, FLAGS.embedding_dim])
+# x_dev = tf.reshape(x_dev,  [-1, max_document_length, FLAGS.embedding_dim])
+# print(x_train.shape)
 
 # Training
 # =======================================================

@@ -10,9 +10,25 @@ import time
 import pickle
 
 import os
-import jieba
+from pyltp import SentenceSplitter
+from pyltp import Segmentor
+from pyltp import Postagger
+from pyltp import NamedEntityRecognizer
+from pyltp import Parser
+from pyltp import SementicRoleLabeller
 
-  
+
+LTP_DATA_DIR = 'D:\Libs_for_All\NLP_Libs\ltp_data_v3.3.1'  # ltp模型目录的路径
+cws_model_path = os.path.join(LTP_DATA_DIR, 'cws.model')  # 分词模型路径，模型名称为`cws.model`
+pos_model_path = os.path.join(LTP_DATA_DIR, 'pos.model')  # 词性标注模型路径，模型名称为`pos.model`
+ner_model_path = os.path.join(LTP_DATA_DIR, 'ner.model')  # 命名实体识别模型路径，模型名称为`ner.model`
+par_model_path = os.path.join(LTP_DATA_DIR, 'parser.model')  # 依存句法分析模型路径，模型名称为`parser.model`
+srl_model_path = os.path.join(LTP_DATA_DIR, 'srl')  # 语义角色标注模型目录路径，模型目录为`srl`。注意该模型路径是一个目录，而不是一个文件。
+
+seg = Segmentor()
+seg.load(cws_model_path)
+
+
 
 def load_positive_negative_data_files(positive_data_file, negative_data_file):
     """
@@ -47,11 +63,17 @@ def mytest():
     print(x_text)
     print(y)
 
- 
+
+
+# #分句，也就是将一片文本分割为独立的句子
+# def sentence_splitter(sentence='你好，你觉得这个例子从哪里来的？'):
+#     sents = SentenceSplitter.split(sentence)  # 分句
+#     print '\n'.join(sents)
+
 
 #ltp的分词模型
 def segmentor(sentence="你好，广东外语外贸大学欢迎你。"):
-    words = jieba.cut(sentence, cut_all=True)
+    words = seg.segment(sentence)
     words_list = list(words)
     return words_list
 
@@ -74,24 +96,5 @@ def loadDict(dict_file):
     return output_dict
 
 
-def batch_iter(data, batch_size, num_epochs, shuffle=True):
-    """
-    Generates a batch iterator for a dataset.
-    """
-    data = np.array(data)
-    data_size = len(data)
-    num_batches_per_epoch = int((len(data)-1)/batch_size) + 1
-    for epoch in range(num_epochs):
-        # Shuffle the data at each epoch
-        if shuffle:
-            shuffle_indices = np.random.permutation(np.arange(data_size))
-            shuffled_data = data[shuffle_indices]
-        else:
-            shuffled_data = data
-        for batch_num in range(num_batches_per_epoch):
-            start_index = batch_num * batch_size
-            end_index = min((batch_num + 1) * batch_size, data_size)
-            yield shuffled_data[start_index:end_index]
-            
 if __name__ == '__main__':
     mytest()
