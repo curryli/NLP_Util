@@ -2,6 +2,9 @@
 
 '''
 python word2vec_helpers.py input_file output_model_file output_vector_file
+https://blog.csdn.net/szlcw1/article/details/52751314
+https://blog.csdn.net/john_xyz/article/details/54706807
+https://blog.csdn.net/xiaoquantouer/article/details/53583980
 '''
 
 # import modules & set up logging
